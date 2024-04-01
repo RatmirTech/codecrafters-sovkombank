@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # Database Services
+  currencyordersdb:
+    image: postgres
+    environment:
+      POSTGRES_DB: currencyOrdersDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: codecrafters
+    ports:
+      - "5434:5432"
+    volumes:
+      - currencyordersdb_volume:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+      
+  authentication_db:
+    image: postgres
+    environment:
+      POSTGRES_DB: authentication_Db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: codecrafters
+    ports:
+      - "5433:5432"
+    volumes:
+      - authentication_db_volume:/var/lib/postgresql/data
+      - ./initauthdb:/docker-entrypoint-initdb.d
+      
+  predictionsDb:
+    image: postgres
+    environment:
+      POSTGRES_DB: predictions
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: codecrafters
+    ports:
+      - "5436:5432"
+    volumes:
+      - predictionsDb_db_volume:/var/lib/postgresql/data
+      
+  notification_db:
+    image: postgres
+    environment:
+      POSTGRES_DB: notification_Db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: codecrafters
+    ports:
+      - "5435:5432"
+    volumes:
+      - notification_db_volume:/var/lib/postgresql/data
+      
+  # Microservice Applications
+  centralbanksystem.api:
+    image: ${DOCKER_REGISTRY-}centralbanksystemapi
+    build:
+      context: ./CodeCrafters/CentralBankSystem.Api
+    ports:
+      - "8080:8080"
+      
+  currencyorders.api:
+    image: ${DOCKER_REGISTRY-}currencyordersapi
+    build:
+      context: ./CodeCrafters/CurrencyOrders.Api
+    environment:
+      ConnectionStrings__CurrencyOrdersDb: "Host=currencyordersdb;Port=5432;Database=currencyOrdersDb;Username=postgres;Password=codecrafters"
+      CentralBank__BaseUrl: "http://centralbanksystem.api:8080"
+      CurrencyRateService__BaseUrl: "http://predictapi:8000"
+      AccountService__BaseUrl: "http://authentication:8082"
+      Notifications__BaseUrl: "http://notificationsapi:8003"
+    depends_on:
+      - currencyordersdb
+    ports:
+      - "8081:8080"
+
+  authentication:
+    build:
+      context: ./AuthenticationService
+    environment:
+      DATABASE_URL: 'postgresql://postgres:codecrafters@authentication_db/authentication_Db'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://authentication_db:5432/authentication_Db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: codecrafters
+      SPRING_APPLICATION_NAME: AuthenticationService
+      SERVER_PORT: 8082
+      JWT_DAYS_UNTIL_EXPIRATION: 1
+      SERVER_ERROR_INCLUDE_MESSAGE: always
+      SPRINGDOC_API_DOCS_PATH: /api-docs
+      central_bank_url_new_account: http://centralbanksystem.api:8080/CentralBank/AcceptNewBankAccount
+      central_bank_url_new_user: http://centralbanksystem.api:8080/CentralBank/AcceptRegistration
+      central_bank_url_transfer_money: http://centralbanksystem.api:8080/CentralBank/AcceptTransaction
+      orders_url_create_order: http://currencyorders.api:8080/Orders/NewOrder
+      orders_url_get_order: http://currencyorders.api:8080/Orders
+    depends_on:
+      - authentication_db
+    ports:
+      - "8082:8082"
+
+  predictapi:
+    build:
+      context: ./predictions-service-main
+    environment:
+      - DATABASE_HOST=predictionsDb
+      - DATABASE_PORT=5432
+      - DATABASE_DBNAME=predictions
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=codecrafters
+    depends_on:
+      - predictionsDb
+    volumes:
+      - .:/app
+    command: sh app_entrypoint.sh
+    ports:
+      - "8000:8000"
+      
+  notificationsapi:
+    build:
+      context: ./NotificationService
+    environment:
+      - DATABASE_URL=postgresql://postgres:codecrafters@notification_db:5432/notification_Db
+    depends_on:
+      - notification_db
+    command: sh app_entrypoint.sh
+    volumes:
+      - .:/app
+    ports:
+      - "8003:8003"
+      
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - NEXT_PUBLIC_JWT_SECRET=SECRET
+      - NEXT_PUBLIC_AXIOS_URL=http://authentication:8082
+      - NEXT_PUBLIC_PREDICTIONS_URL=http://predictapi:8082
+      - NEXT_PUBLIC_WEBSOCKET_URL=notificationsapi:8003
+    ports:
+      - "3000:3000"
+
+# networks:
+  # codecrafters-network:
+    # driver: bridge
+
+volumes:
+  currencyordersdb_volume:
+  authentication_db_volume:
+  notification_db_volume:
+  predictionsDb_db_volume:

@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  centralbanksystem.api:
+    image: ${DOCKER_REGISTRY-}centralbanksystemapi
+    build:
+      context: .
+      dockerfile: CentralBankSystem.Api/Dockerfile
+
+  currencyorders.api:
+    image: ${DOCKER_REGISTRY-}currencyordersapi
+    build:
+      context: .
+      dockerfile: CurrencyOrders.Api/Dockerfile
+
