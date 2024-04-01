@@ -22,9 +22,6 @@ myvenv/
 *.rar
 hs_err_pid*
 replay_pid*
-target/
-!**/src/main/**/target/
-!**/src/test/**/target/
 
 # Spring Boot
 HELP.md
