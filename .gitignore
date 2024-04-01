@@ -142,7 +142,6 @@ npm-debug.log
 # Others
 *.cache
 *.log
-*.sql
 *.sqlite
 
 # End of custom .gitignore
