@@ -193,7 +193,7 @@ export const BuyCurrencyForm = ({ accounts, setReload }: BuyCurrencyForm) => {
 					<span className='text-neutral-600 font-regular'>
 						Выберите счет для валюты 1
 					</span>
-					<div className='flex gap-x-2'>
+					<div className='flex gap-2 flex-wrap'>
 						{accounts.filter(e => e.currency.code == selectedValue1?.label)
 							.length > 0 ? (
 							accounts
@@ -257,7 +257,7 @@ export const BuyCurrencyForm = ({ accounts, setReload }: BuyCurrencyForm) => {
 					<span className='text-neutral-600 font-regular'>
 						Выберите счет для валюты 2
 					</span>
-					<div className='flex gap-x-2'>
+					<div className='flex flex-wrap gap-2'>
 						{accounts.filter(e => e.currency.code == selectedValue2?.label)
 							.length > 0
 							? accounts

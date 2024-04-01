@@ -41,7 +41,7 @@ export const Dialog = ({
 			<dialog
 				ref={dialogRef}
 				className={cn(
-					'inset-0 block w-2/3 max-w-[750px] translate-y-20 rounded-lg border p-8 opacity-0 transition-[opacity, transform] duration-300 backdrop:backdrop-blur-sm [&:not([open])]:pointer-events-none [&[open]]:translate-y-0 [&[open]]:opacity-100',
+					'inset-0 block w-full p-4 sm:p-8 sm:w-2/3 max-w-[750px] translate-y-20 rounded-lg border opacity-0 transition-[opacity, transform] duration-300 backdrop:backdrop-blur-sm [&:not([open])]:pointer-events-none [&[open]]:translate-y-0 [&[open]]:opacity-100',
 					className
 				)}
 				onClick={ev => {
