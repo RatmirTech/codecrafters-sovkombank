@@ -35,8 +35,8 @@ cd src
 docker compose up -d --build
 ```
 
-```sh
 Просьба перейти по данным ссылкам перед заходом на веб клиент
+```sh
 http://localhost:8000/currencies/get-currency-rates?currency=rub-cny&days=1
 http://localhost:8000/currencies/get-currency-rates?currency=rub-aed&days=1
 ```
@@ -57,6 +57,9 @@ http://localhost:3000
 http://localhost:8000/currencies/get-currency-rates?currency=rub-cny&days=1
 http://localhost:8000/currencies/get-currency-rates?currency=rub-aed&days=1
 ```
+
+## Недоделанный функционал, который планируется реализовать в будущем
+- анализ новостей с помощью gpt. В папке недоделанный функционал лежит код для парсера и gpt.
 
 ## Стек
 - Next.js TypeScript
